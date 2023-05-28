@@ -17,7 +17,8 @@ namespace PkemonReviewApp.Controllers
         public PokemonController(IPokemonRepository pokemonRepository ,IMapper mapper)
         {
            _pokemonRepository = pokemonRepository;
-          _mapper = mapper;
+           
+            _mapper = mapper;
         }
         [HttpGet]
         [ProducesResponseType( 200,Type = typeof(IEnumerable<Pokemon>))]
@@ -69,6 +70,35 @@ namespace PkemonReviewApp.Controllers
                 return BadRequest(ModelState);
             }
             return Json(new { rating });
+
+        }
+        [HttpPost]
+        [ProducesResponseType(201)]
+        [ProducesResponseType(400)]
+        public IActionResult CreateNewPokemon([FromQuery] int ownerId, [FromQuery] int CategoryId, [FromBody] PokemonDto pokemonCreate)
+        {
+            if(pokemonCreate ==null)
+                return BadRequest(ModelState);
+
+            var pokemons=_pokemonRepository.GetPokemons().Where(c=>c.Name.Trim().ToUpper() == pokemonCreate.Name.TrimEnd().ToUpper()).FirstOrDefault();
+
+            if(pokemons != null)
+            {
+                ModelState.AddModelError("", "Already Exists");
+                return StatusCode(StatusCodes.Status422UnprocessableEntity, ModelState);
+            }
+            var pokemonMap = _mapper.Map<Pokemon>(pokemonCreate);
+
+            if(!_pokemonRepository.CreatePokemon(ownerId, CategoryId, pokemonMap))
+            {
+                ModelState.AddModelError("", "Something went to wrong");
+                return StatusCode(StatusCodes.Status500InternalServerError,ModelState);
+
+            }
+       
+           return new CreatedAtRouteResult(nameof(ModelState), new { message = "Data saved successfully", StatusCodes.Status201Created });
+            //return Json(new {message="Data saved successfully",StatusCodes.Status201Created});
+
 
         }
 

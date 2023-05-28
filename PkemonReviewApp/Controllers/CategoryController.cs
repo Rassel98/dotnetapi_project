@@ -65,6 +65,30 @@ namespace PkemonReviewApp.Controllers
             //return Ok(category);
             return Json(new { message = "Data comes successfully", data = pokemon });
         }
+
+        [HttpPost]
+        [ProducesResponseType(201)]
+        [ProducesResponseType(400)]
+        public IActionResult CreateCategory([FromBody] CategoryDto category)
+        {
+            if (category == null) return BadRequest(ModelState);
+            var cheakCategory=_categoryRepository.GetCategories().Where(c=>c.Name.Trim().ToLower()==category.Name.TrimEnd().ToLower()).FirstOrDefault();
+            if(cheakCategory!= null) 
+            {
+                ModelState.AddModelError("", "Category Already Exists");
+                return StatusCode(422,ModelState);
+            }
+            if(!ModelState.IsValid)return BadRequest(ModelState);
+            var categoryMap = _mapper.Map<Category>(category);
+            if(!_categoryRepository.CreateCategory(categoryMap))
+            {
+                ModelState.AddModelError("", "Somthing went to wrong for creating new category");
+                return StatusCode(500, ModelState);
+            }
+            return Json(new { Message = "Category created successfully" });
+
+
+        }
        
 
     }

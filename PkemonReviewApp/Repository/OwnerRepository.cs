@@ -12,6 +12,13 @@ namespace PkemonReviewApp.Repository
         {
             this.context = context;
         }
+
+        public bool CreateOwner(Owner owner)
+        {
+            context.Add(owner);
+            return Save();
+        }
+
         public Owner GetOwner(int id)
         {
             return context.Owners.Where(o => o.Id == id).FirstOrDefault();
@@ -36,6 +43,12 @@ namespace PkemonReviewApp.Repository
         public bool OwnerExists(int ownerId)
         {
             return context.Owners.Any(o => o.Id == ownerId);
+        }
+
+        public bool Save()
+        {
+            var save = context.SaveChanges();
+            return save > 0 ? true : false;
         }
     }
 }

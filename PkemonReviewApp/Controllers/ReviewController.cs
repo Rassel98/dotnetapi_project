@@ -13,18 +13,18 @@ namespace PokemonReviewApp.Controllers
     {
         private readonly IReviewRepository _reviewRepository;
         private readonly IMapper _mapper;
-       // private readonly IReviewerRepository _reviewerRepository;
+        private readonly IReviewerRepository _reviewerRepository;
         private readonly IPokemonRepository _pokemonRepository;
 
         public ReviewController(IReviewRepository reviewRepository,
         IMapper mapper,
-            IPokemonRepository pokemonRepository
-           // IReviewerRepository reviewerRepository
+            IPokemonRepository pokemonRepository,
+           IReviewerRepository reviewerRepository
             )
         {
             _reviewRepository = reviewRepository;
             _mapper = mapper;
-           // _reviewerRepository = reviewerRepository;
+            _reviewerRepository = reviewerRepository;
             _pokemonRepository = pokemonRepository;
         }
 
@@ -69,8 +69,8 @@ namespace PokemonReviewApp.Controllers
             return Ok(reviews);
         }
 
-        /* [HttpPost]
-         [ProducesResponseType(204)]
+         [HttpPost]
+         [ProducesResponseType(201)]
          [ProducesResponseType(400)]
          public IActionResult CreateReview([FromQuery] int reviewerId, [FromQuery] int pokeId, [FromBody] ReviewDto reviewCreate)
          {
@@ -93,7 +93,7 @@ namespace PokemonReviewApp.Controllers
              var reviewMap = _mapper.Map<Review>(reviewCreate);
 
              reviewMap.Pokemon = _pokemonRepository.GetPokemon(pokeId);
-            // reviewMap.Reviewer = _reviewerRepository.GetReviewer(reviewerId);
+             reviewMap.Reviewer = _reviewerRepository.GetReviewer(reviewerId);
 
 
              if (!_reviewRepository.CreateReview(reviewMap))
@@ -102,10 +102,11 @@ namespace PokemonReviewApp.Controllers
                  return StatusCode(500, ModelState);
              }
 
-             return Ok("Successfully created");
-         }
+            //return Ok("Successfully created");
+            return new CreatedAtRouteResult(nameof(ModelState), new { message = "Data saved successfully", StatusCodes.Status201Created });
+        }
 
-         [HttpPut("{reviewId}")]
+        /* [HttpPut("{reviewId}")]
          [ProducesResponseType(400)]
          [ProducesResponseType(204)]
          [ProducesResponseType(404)]

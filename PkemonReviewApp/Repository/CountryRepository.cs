@@ -15,12 +15,18 @@ namespace PkemonReviewApp.Repository
           
         }
 
-        public Country Get(int id)
+        public bool CreateCountry(Country country)
+        {
+            _context.Add(country);
+            return save();
+        }
+
+        public Country GetCountry(int id)
         {
             return _context.Countrys.Where(c=>c.Id==id).FirstOrDefault();
         }
 
-        public ICollection<Country> GetAll()
+        public ICollection<Country> GetAllCountrys()
         {
             return _context.Countrys.ToList();
         }
@@ -39,6 +45,12 @@ namespace PkemonReviewApp.Repository
         public bool HasCountry(int id)
         {
             return _context.Countrys.Any(c=>c.Id==id);
+        }
+
+        public bool save()
+        {
+            var save = _context.SaveChanges();
+            return save > 0 ? true : false;
         }
     }
 }

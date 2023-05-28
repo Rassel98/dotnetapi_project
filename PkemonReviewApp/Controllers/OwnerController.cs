@@ -13,11 +13,13 @@ namespace PkemonReviewApp.Controllers
     public class OwnerController : Controller
     {
         private readonly IOwnerReposotory _ownerReposotory;
+        private readonly ICountryRepository _countryRepository;
         private readonly IMapper _mapper;
 
-        public OwnerController(IOwnerReposotory ownerReposotory,IMapper mapper)
+        public OwnerController(IOwnerReposotory ownerReposotory,ICountryRepository countryRepository,IMapper mapper)
         {
             _ownerReposotory = ownerReposotory;
+           _countryRepository = countryRepository;
             _mapper = mapper;
         }
         [HttpGet("{id}")]
@@ -52,6 +54,28 @@ namespace PkemonReviewApp.Controllers
             if(!ModelState.IsValid) { return BadRequest(); }
             return Json(new {data= owner});
 
+        }
+        [HttpPost]
+        [ProducesResponseType(201)]
+        [ProducesResponseType(400)]
+        public IActionResult CreateNewOwner([FromQuery]int countryId,[FromBody]OwnerDto ownerCreate)
+        {
+            if (ownerCreate == null) return BadRequest(ModelState);
+            var owner=_ownerReposotory.GetOwners().Where(o=>o.LastName.ToLower()==ownerCreate.LastName.ToLower()).FirstOrDefault();   
+            if(owner != null) 
+            {
+                ModelState.AddModelError("", "Owner allready exists");
+                return StatusCode(422, ModelState);
+
+            }
+            var ownerMap = _mapper.Map<Owner>(ownerCreate);
+            ownerMap.Country = _countryRepository.GetCountry(countryId);
+            if (!_ownerReposotory.CreateOwner(ownerMap))
+            {
+                ModelState.AddModelError("", "Something went to wrong for creating new owner");
+                return StatusCode(500, ModelState);
+            }
+            return Json(new { message = "New Owner created Successfully", status = "Success" });
         }
 
 

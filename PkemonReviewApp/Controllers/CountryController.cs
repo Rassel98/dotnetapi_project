@@ -25,7 +25,7 @@ namespace PkemonReviewApp.Controllers
         [ProducesResponseType(400)]
         public IActionResult GetAllCountry()
         {
-            var country = _mapper.Map<List<Country>>(_countryRepository.GetAll());
+            var country = _mapper.Map<List<Country>>(_countryRepository.GetAllCountrys());
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
@@ -39,7 +39,7 @@ namespace PkemonReviewApp.Controllers
         {
             if(!_countryRepository.HasCountry(id))
                 return NotFound();
-            var country=_countryRepository.Get(id);
+            var country=_countryRepository.GetCountry(id);
             return Ok(country);
         }
 
@@ -51,6 +51,30 @@ namespace PkemonReviewApp.Controllers
             var country = _mapper.Map<CountryDto>(_countryRepository.GetCountryByOwner(ownerId));
             if (!ModelState.IsValid) return BadRequest();
             return Json(new { message = "Data get successfully", data = country });
+        }
+        [HttpPost]
+        [ProducesResponseType(201)]
+        [ProducesResponseType(400)]
+        public IActionResult CreateNewCountry([FromBody]CountryDto country)
+        {
+            if(country==null)return BadRequest();
+
+            var isCountry = _countryRepository.GetAllCountrys().Where(c => c.Name.Trim().ToLower() == country.Name.TrimEnd().ToLower()).FirstOrDefault();
+            if (isCountry != null)
+            {
+                ModelState.AddModelError("", "country allready exists");
+                return StatusCode(422, ModelState);
+            }
+            var countryMap=_mapper.Map<Country>(country);
+            if (!_countryRepository.CreateCountry(countryMap))
+            {
+                ModelState.AddModelError("", "Somthing went to wrong for creating new category");
+                return StatusCode(500, ModelState);
+            }
+           
+            return Json(new { Message = "new country created successfully" });
+
+
         }
     }
 }
