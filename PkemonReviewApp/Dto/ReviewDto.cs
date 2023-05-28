@@ -1,4 +1,6 @@
-﻿namespace PkemonReviewApp.Dto
+﻿using PkemonReviewApp.Models;
+
+namespace PkemonReviewApp.Dto
 {
     public class ReviewDto
     {
@@ -6,5 +8,7 @@
         public string Title { get; set; }
         public string Text { get; set; }
         public int Rating { get; set; }
+        public virtual Reviewer Reviewer { get; set; }
+        public virtual Pokemon Pokemon { get; set; }
     }
 }

@@ -14,6 +14,12 @@ namespace PkemonReviewApp.Repository
            _context = context;
         }
 
+        public bool CreateReviewer(Reviewer reviewer)
+        {
+           _context.Add(reviewer);
+            return Save();
+        }
+
         public Reviewer GetReviewer(int id)
         {
             return _context.Reviewers.Where(re => re.Id == id).Include(e=>e.Reviews).FirstOrDefault();
@@ -32,6 +38,12 @@ namespace PkemonReviewApp.Repository
         public bool ReviewerExists(int reviewerid)
         {
             return _context.Reviewers.Any(r => r.Id == reviewerid);
+        }
+
+        public bool Save()
+        {
+           var saved= _context.SaveChanges();
+            return saved>0?true:false;
         }
     }
 }

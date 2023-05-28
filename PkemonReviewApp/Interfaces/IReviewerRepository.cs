@@ -8,5 +8,7 @@ namespace PkemonReviewApp.Interfaces
         Reviewer GetReviewer(int id);
         ICollection<Review> GetReviewsByReviewer(int reviewerId);
         bool ReviewerExists(int reviewerid);
+        bool CreateReviewer(Reviewer reviewer);
+        bool Save();
     }
 }

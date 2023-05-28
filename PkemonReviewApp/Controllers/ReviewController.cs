@@ -102,8 +102,7 @@ namespace PokemonReviewApp.Controllers
                  return StatusCode(500, ModelState);
              }
 
-            //return Ok("Successfully created");
-            return new CreatedAtRouteResult(nameof(ModelState), new { message = "Data saved successfully", StatusCodes.Status201Created });
+            return StatusCode(201, new { message = "Data saved successfully"});
         }
 
         /* [HttpPut("{reviewId}")]
