@@ -101,6 +101,33 @@ namespace PkemonReviewApp.Controllers
 
 
         }
+        [HttpPut("{pokeId}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public IActionResult UpdatedPokemon(int pokeId,[FromBody] PokemonDto updatePokemon)
+        {
+            if (updatePokemon == null)
+                return BadRequest(ModelState);
+
+            if (updatePokemon.Id != pokeId)
+            {
+               
+                return StatusCode(StatusCodes.Status422UnprocessableEntity, ModelState);
+            }
+            var pokemonMap = _mapper.Map<Pokemon>(updatePokemon);
+
+            if (!_pokemonRepository.UpdatePokemon(pokemonMap))
+            {
+                ModelState.AddModelError("", "Something went to wrong");
+                return StatusCode(StatusCodes.Status500InternalServerError, ModelState);
+
+            }
+
+            return new CreatedAtRouteResult(nameof(ModelState), new { message = "Data saved successfully", StatusCodes.Status200OK });
+            //return Json(new {message="Data saved successfully",StatusCodes.Status201Created});
+
+
+        }
 
     }
 }

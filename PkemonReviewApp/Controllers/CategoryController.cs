@@ -89,6 +89,25 @@ namespace PkemonReviewApp.Controllers
 
 
         }
+        [HttpPut("{categoryId}")]
+        [ProducesResponseType(201)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public IActionResult UpdateCategory(int categoryId, [FromBody] CategoryDto updateCategory)
+        {
+            if(updateCategory == null) return BadRequest();
+
+            if (categoryId !=updateCategory.Id)return BadRequest(ModelState);
+
+            if (!_categoryRepository.CategoryExists(categoryId)) return NotFound();
+            var categoryMap = _mapper.Map<Category>(updateCategory);
+            if (!_categoryRepository.UpdateCategory(categoryMap))
+            {
+                return StatusCode(500, "Internal server error");
+            }
+            return StatusCode(201, new { Message = "category updated successfull" ,status="success"});
+
+        }
        
 
     }

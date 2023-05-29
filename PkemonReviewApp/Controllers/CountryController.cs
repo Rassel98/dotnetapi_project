@@ -76,5 +76,24 @@ namespace PkemonReviewApp.Controllers
 
 
         }
+        [HttpPut("{countryId}")]
+        [ProducesResponseType(201)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(400)]
+        public IActionResult UpdateCountry(int countryId, [FromBody]CountryDto newCountry)
+        {
+            if(newCountry==null)
+                return BadRequest();
+            if(countryId!=newCountry.Id)
+                return BadRequest();
+            if(!_countryRepository.HasCountry(countryId))
+                return NotFound();
+            var countryMap = _mapper.Map<Country>(newCountry);
+            if (!_countryRepository.UpdateCountry(countryMap))
+            {
+                return StatusCode(500, "internal server error");
+            }
+            return StatusCode(201, new { Message = "country updated successfully", status = "success" });
+        }
     }
 }

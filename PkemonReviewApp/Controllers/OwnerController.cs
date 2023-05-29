@@ -77,6 +77,23 @@ namespace PkemonReviewApp.Controllers
             }
             return Json(new { message = "New Owner created Successfully", status = "Success" });
         }
+        [HttpPut("{ownerId}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public IActionResult UpdateOwner(int ownerId, [FromBody] OwnerDto updatedOwner)
+        {
+            if(updatedOwner==null)return BadRequest(ModelState);
+            if(ownerId!=updatedOwner.Id)
+                return BadRequest(ModelState);
+            if(!_ownerReposotory.OwnerExists(ownerId))
+                return NotFound(ModelState);
+
+            var ownerMap=_mapper.Map<Owner>(updatedOwner);
+            if (!_ownerReposotory.UpdateOwner(ownerMap))
+                return StatusCode(500, "internal server error");
+            return StatusCode(200, new { message = "Successfully owner updated", status = "success" });
+        }
 
 
 
