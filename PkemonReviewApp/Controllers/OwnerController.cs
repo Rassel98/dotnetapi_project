@@ -94,6 +94,19 @@ namespace PkemonReviewApp.Controllers
                 return StatusCode(500, "internal server error");
             return StatusCode(200, new { message = "Successfully owner updated", status = "success" });
         }
+        [HttpDelete("ownerId")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public IActionResult DeleteOwner(int ownerId)
+        {
+            if (!_ownerReposotory.OwnerExists(ownerId))
+                return NotFound();
+            var owner=_ownerReposotory.GetOwner(ownerId);
+            if (!_ownerReposotory.DeleteOwner(owner))
+                return StatusCode(500, "Internal server error");
+            return StatusCode(200, new { message = "Owner deleted successfully" });
+        }
 
 
 

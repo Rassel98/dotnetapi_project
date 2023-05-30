@@ -26,11 +26,19 @@ namespace PkemonReviewApp.Controllers
         [ProducesResponseType(200, Type = typeof(IEnumerable<Category>))]
         public IActionResult GetAllCategory()
         {
-            var category = _mapper.Map<List<CategoryDto>>(_categoryRepository.GetCategories());
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            try
+            {
+                var category = _mapper.Map<List<CategoryDto>>(_categoryRepository.GetCategories());
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
 
-            return Json(new {message="Data comes successfully",data=category});
+                return Json(new { message = "Data comes successfully", data = category });
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
          
         }
 
@@ -40,15 +48,21 @@ namespace PkemonReviewApp.Controllers
         [ProducesResponseType(400)]
         public IActionResult GetCategory(int id)
         {
-            if (!_categoryRepository.CategoryExists(id))
+            try
             {
-                return NotFound();
+                if (!_categoryRepository.CategoryExists(id))
+                {
+                    return NotFound();
+                }
+                var category = _mapper.Map<CategoryDto>(_categoryRepository.GetCategory(id));
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+                //return Ok(category);
+                return Json(new { message = "Data comes successfully", data = category });
+            }catch(Exception e)
+            {
+                return BadRequest(e.Message);
             }
-            var category = _mapper.Map<CategoryDto>(_categoryRepository.GetCategory(id));
-            if(!ModelState.IsValid)
-                return BadRequest(ModelState);
-            //return Ok(category);
-             return Json(new {message="Data comes successfully",data = category });
         }
 
 
@@ -57,13 +71,19 @@ namespace PkemonReviewApp.Controllers
         [ProducesResponseType(400)]
         public IActionResult GetPokemonByCategory(int categoryId)
         {
-          
-            var pokemon = _mapper.Map<List<Pokemon>>(_categoryRepository.GetPokemonByCategory(categoryId));
-            
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-            //return Ok(category);
-            return Json(new { message = "Data comes successfully", data = pokemon });
+            try
+            {
+                var pokemon = _mapper.Map<List<Pokemon>>(_categoryRepository.GetPokemonByCategory(categoryId));
+
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+                //return Ok(category);
+                return Json(new { message = "Data comes successfully", data = pokemon });
+            }catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        
         }
 
         [HttpPost]
@@ -71,21 +91,27 @@ namespace PkemonReviewApp.Controllers
         [ProducesResponseType(400)]
         public IActionResult CreateCategory([FromBody] CategoryDto category)
         {
-            if (category == null) return BadRequest(ModelState);
-            var cheakCategory=_categoryRepository.GetCategories().Where(c=>c.Name.Trim().ToLower()==category.Name.TrimEnd().ToLower()).FirstOrDefault();
-            if(cheakCategory!= null) 
+            try
             {
-                ModelState.AddModelError("", "Category Already Exists");
-                return StatusCode(422,ModelState);
-            }
-            if(!ModelState.IsValid)return BadRequest(ModelState);
-            var categoryMap = _mapper.Map<Category>(category);
-            if(!_categoryRepository.CreateCategory(categoryMap))
+                if (category == null) return BadRequest(ModelState);
+                var cheakCategory = _categoryRepository.GetCategories().Where(c => c.Name.Trim().ToLower() == category.Name.TrimEnd().ToLower()).FirstOrDefault();
+                if (cheakCategory != null)
+                {
+                    ModelState.AddModelError("", "Category Already Exists");
+                    return StatusCode(422, ModelState);
+                }
+                if (!ModelState.IsValid) return BadRequest(ModelState);
+                var categoryMap = _mapper.Map<Category>(category);
+                if (!_categoryRepository.CreateCategory(categoryMap))
+                {
+                    ModelState.AddModelError("", "Somthing went to wrong for creating new category");
+                    return StatusCode(500, ModelState);
+                }
+                return Json(new { Message = "Category created successfully" });
+            }catch  (Exception e)
             {
-                ModelState.AddModelError("", "Somthing went to wrong for creating new category");
-                return StatusCode(500, ModelState);
+                return BadRequest(e.Message);
             }
-            return Json(new { Message = "Category created successfully" });
 
 
         }
@@ -95,18 +121,42 @@ namespace PkemonReviewApp.Controllers
         [ProducesResponseType(404)]
         public IActionResult UpdateCategory(int categoryId, [FromBody] CategoryDto updateCategory)
         {
-            if(updateCategory == null) return BadRequest();
-
-            if (categoryId !=updateCategory.Id)return BadRequest(ModelState);
-
-            if (!_categoryRepository.CategoryExists(categoryId)) return NotFound();
-            var categoryMap = _mapper.Map<Category>(updateCategory);
-            if (!_categoryRepository.UpdateCategory(categoryMap))
+            try
             {
-                return StatusCode(500, "Internal server error");
-            }
-            return StatusCode(201, new { Message = "category updated successfull" ,status="success"});
+                if (updateCategory == null) return BadRequest();
 
+                if (categoryId != updateCategory.Id) return BadRequest(ModelState);
+
+                if (!_categoryRepository.CategoryExists(categoryId)) return NotFound();
+                var categoryMap = _mapper.Map<Category>(updateCategory);
+                if (!_categoryRepository.UpdateCategory(categoryMap))
+                {
+                    return StatusCode(500, "Internal server error");
+                }
+                return StatusCode(201, new { Message = "category updated successfull", status = "success" });
+            }catch(Exception e) {
+                return BadRequest();
+            }
+
+        }
+        [HttpDelete("categoryId")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public IActionResult DeleteCategory(int categoryId)
+        {
+            try
+            {
+                if (!_categoryRepository.CategoryExists(categoryId))
+                    return NotFound();
+                var category = _categoryRepository.GetCategory(categoryId);
+                if (!_categoryRepository.DeleteCategory(category))
+                    return StatusCode(500, "Internal server error");
+                return StatusCode(200, new { Message = "Category deleted successfully" });
+            }catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
        
 

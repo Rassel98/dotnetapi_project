@@ -95,5 +95,20 @@ namespace PkemonReviewApp.Controllers
             }
             return StatusCode(201, new { Message = "country updated successfully", status = "success" });
         }
+        [HttpDelete("countryId")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public IActionResult DeleteCategory(int countryId)
+        {
+            if (!_countryRepository.HasCountry(countryId))
+                return NotFound();
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            var country = _countryRepository.GetCountry(countryId);
+            if (!_countryRepository.DeleteCountry(country))
+                return StatusCode(500, "Internal server error");
+            return StatusCode(200, new { Message = "country deleted successfully" });
+        }
     }
 }

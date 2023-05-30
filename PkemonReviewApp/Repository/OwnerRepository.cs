@@ -19,6 +19,12 @@ namespace PkemonReviewApp.Repository
             return Save();
         }
 
+        public bool DeleteOwner(Owner owner)
+        {
+            context.Remove(owner);
+            return Save();
+        }
+
         public Owner GetOwner(int id)
         {
             return context.Owners.Where(o => o.Id == id).FirstOrDefault();

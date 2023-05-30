@@ -12,9 +12,6 @@ namespace PkemonReviewApp.Repository
             _context = context;
             
         }
-
-  
-
         public bool CreatePokemon(int ownerId, int categoryId, Pokemon pokemon)
         {
             var pokemonOwnerEntity=_context.Owners.Where(o=>o.Id==ownerId).FirstOrDefault();
@@ -32,6 +29,12 @@ namespace PkemonReviewApp.Repository
             };
             _context.Add(pokemonCategory);
             _context.Add(pokemon);
+            return Save();
+        }
+
+        public bool DeletePokemon(Pokemon pokemon)
+        {
+            _context.Remove(pokemon);
             return Save();
         }
 

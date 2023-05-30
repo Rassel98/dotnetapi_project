@@ -19,6 +19,13 @@ namespace PkemonReviewApp.Repository
             return Save();
         }
 
+        public bool DeleteReview(Review review)
+        {
+        
+            _context.Remove(review);
+            return Save();
+        }
+
         public ICollection<Review> GetAllReviewsOfAPokemon(int pokeid)
         {
            return _context.Reviews.Where(r=>r.Pokemon.Id == pokeid).ToList();
@@ -43,6 +50,12 @@ namespace PkemonReviewApp.Repository
         {
         var saved=   _context.SaveChanges();
             return saved>0?true:false;
+        }
+
+        public bool UpdateReview(Review review)
+        {
+            _context.Update(review);
+            return Save();
         }
     }
 }

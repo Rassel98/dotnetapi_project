@@ -58,5 +58,11 @@ namespace PkemonReviewApp.Repository
             _context.Update(country);
             return save();
         }
+
+        public bool DeleteCountry(Country country)
+        {
+            _context.Remove(country);
+            return save();
+        }
     }
 }

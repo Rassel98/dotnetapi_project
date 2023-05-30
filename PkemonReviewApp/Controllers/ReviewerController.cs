@@ -78,5 +78,48 @@ namespace PkemonReviewApp.Controllers
             }
             return StatusCode(201, new { message = "Data saved successfully" });
         }
+         [HttpPut("{reviewerId}")]
+         [ProducesResponseType(400)]
+         [ProducesResponseType(200)]
+         [ProducesResponseType(404)]
+         public IActionResult UpdateReview(int reviewerId, [FromBody] ReviewerDto updatedReviewer)
+         {
+             if (updatedReviewer == null)
+                 return BadRequest(ModelState);
+
+             if (reviewerId != updatedReviewer.Id)
+                 return BadRequest(ModelState);
+
+             if (!_reviewerRepository.ReviewerExists(reviewerId))
+                 return NotFound();
+
+             if (!ModelState.IsValid)
+                 return BadRequest();
+
+             var reviewMap = _mapper.Map<Reviewer>(updatedReviewer);
+
+             if (!_reviewerRepository.UpdateReviewer(reviewMap))
+             {
+                 ModelState.AddModelError("", "Something went wrong updating review");
+                 return StatusCode(500, ModelState);
+             }
+
+            return StatusCode(500, new {message="success"});
+        }
+        [HttpDelete("{reviewerId}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        public IActionResult DeleteReviewer(int reviewerId)
+        {
+            if (!_reviewerRepository.ReviewerExists(reviewerId))
+                return NotFound();
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            var review=_reviewerRepository.GetReviewer(reviewerId);
+            if (!_reviewerRepository.DeleteReviewer(review))
+                return StatusCode(500, "Internal Server error");
+            return StatusCode(200, "Data successfully deleted "+ reviewerId);
+        }
+
     }
 }

@@ -104,6 +104,23 @@ namespace PokemonReviewApp.Controllers
 
             return StatusCode(201, new { message = "Data saved successfully"});
         }
+        [HttpPut("{reviewId}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public IActionResult UpdateReview(int reviewId, [FromBody] ReviewDto updateReview)
+        {
+            if(updateReview == null)return BadRequest(ModelState);
+            if(reviewId!=updateReview.Id)return BadRequest(ModelState);
+            if (!_reviewRepository.HasReview(reviewId))
+                return StatusCode(404, "Your requested review not found");
+            var reviewMap = _mapper.Map<Review>(updateReview);
+            if(!_reviewRepository.UpdateReview(reviewMap))
+            {
+                return StatusCode(500, new { message = "internal server error" });
+            }
+            return StatusCode(200, new { message = "Review updated successfully", status = "success" });
+        }
 
         /* [HttpPut("{reviewId}")]
          [ProducesResponseType(400)]
@@ -132,7 +149,7 @@ namespace PokemonReviewApp.Controllers
              }
 
              return NoContent();
-         }
+         }*/
 
          [HttpDelete("{reviewId}")]
          [ProducesResponseType(400)]
@@ -140,7 +157,7 @@ namespace PokemonReviewApp.Controllers
          [ProducesResponseType(404)]
          public IActionResult DeleteReview(int reviewId)
          {
-             if (!_reviewRepository.ReviewExists(reviewId))
+             if (!_reviewRepository.HasReview(reviewId))
              {
                  return NotFound();
              }
@@ -152,13 +169,14 @@ namespace PokemonReviewApp.Controllers
 
              if (!_reviewRepository.DeleteReview(reviewToDelete))
              {
-                 ModelState.AddModelError("", "Something went wrong deleting owner");
+                
+                return StatusCode(500, "Internal server error");
              }
 
-             return NoContent();
+             return StatusCode(200, new {message="Data deleted successfully"});
          }
 
-         // Added missing delete range of reviews by a reviewer **>CK
+        /* // Added missing delete range of reviews by a reviewer **>CK
          [HttpDelete("/DeleteReviewsByReviewer/{reviewerId}")]
          [ProducesResponseType(400)]
          [ProducesResponseType(204)]

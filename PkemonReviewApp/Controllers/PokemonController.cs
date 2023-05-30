@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using PkemonReviewApp.Dto;
 using PkemonReviewApp.Interfaces;
 using PkemonReviewApp.Models;
+using PkemonReviewApp.Repository;
 
 namespace PkemonReviewApp.Controllers
 {
@@ -127,6 +128,21 @@ namespace PkemonReviewApp.Controllers
             //return Json(new {message="Data saved successfully",StatusCodes.Status201Created});
 
 
+        }
+        [HttpDelete("pokeId")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public IActionResult DeleteOwner(int pokeId)
+        {
+            if (!_pokemonRepository.PokemonExists(pokeId))
+                return NotFound();
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            var pokemon = _pokemonRepository.GetPokemon(pokeId);
+            if (!_pokemonRepository.DeletePokemon(pokemon))
+                return StatusCode(500, "Internal server error");
+            return StatusCode(200, new { message = "Pokemon deleted successfully" });
         }
 
     }
