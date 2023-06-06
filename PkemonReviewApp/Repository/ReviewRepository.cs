@@ -1,6 +1,7 @@
 ﻿using PkemonReviewApp.Data;
 using PkemonReviewApp.Interfaces;
 using PkemonReviewApp.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace PkemonReviewApp.Repository
 {
@@ -33,7 +34,7 @@ namespace PkemonReviewApp.Repository
 
         public Review GetReview(int id)
         {
-           return _context.Reviews.Where(review => review.Id == id).FirstOrDefault();
+           return _context.Reviews.Include(c=>c.Pokemon).Include(r=>r.Reviewer).Where(review => review.Id == id).FirstOrDefault();
         }
 
         public ICollection<Review> GetReviews()

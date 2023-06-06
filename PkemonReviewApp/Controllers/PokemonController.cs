@@ -26,7 +26,8 @@ namespace PkemonReviewApp.Controllers
         public IActionResult GetPokemons()
         {
             var pokemons=_mapper.Map<List<PokemonDto>>(_pokemonRepository.GetPokemons());
-            if(!ModelState.IsValid)
+           // var pokemons = _pokemonRepository.GetPokemons();
+            if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             return Ok(pokemons);
@@ -42,17 +43,12 @@ namespace PkemonReviewApp.Controllers
                 return NotFound();
             }
             var pokemon = _pokemonRepository.GetPokemon(pokeId);
-            var pk = new Pokemon
-            {
-                Id = pokemon.Id,
-                Name = pokemon.Name,
-                BirthDate = pokemon.BirthDate
-            };
+        
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            return Ok(pk);
+            return Ok(pokemon);
 
         }
         [HttpGet("/rating/{pokeId}")]

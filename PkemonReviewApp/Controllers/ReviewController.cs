@@ -48,7 +48,8 @@ namespace PokemonReviewApp.Controllers
             if (!_reviewRepository.HasReview(reviewId))
                 return NotFound();
 
-            var review = _mapper.Map<ReviewDto>(_reviewRepository.GetReview(reviewId));
+           // var review = _mapper.Map<ReviewDto>(_reviewRepository.GetReview(reviewId));
+            var review = _reviewRepository.GetReview(reviewId);
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
